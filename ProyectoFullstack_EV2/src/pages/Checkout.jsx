@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { CarritoContext } from '../context/CarritoContext';
+import { ordenesService } from '../services/ordenes';
 
 export default function Checkout({ onCompraFinalizada }) {
   const { carrito, total, vaciarCarrito } = useContext(CarritoContext);
@@ -16,12 +17,14 @@ export default function Checkout({ onCompraFinalizada }) {
   });
 
   const [errores, setErrores] = useState({});
+  const [errorServidor, setErrorServidor] = useState(null);
+  const [enviando, setEnviando] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const nuevosErrores = {};
 
@@ -29,7 +32,9 @@ export default function Checkout({ onCompraFinalizada }) {
     if (!form.apellido.trim()) nuevosErrores.apellido = 'El apellido es obligatorio';
     if (!form.correo.includes('@')) nuevosErrores.correo = 'Correo no válido';
     if (!form.calle.trim()) nuevosErrores.calle = 'La dirección es obligatoria';
-    if (form.numeroTarjeta.replace(/\s/g, '').length < 16) nuevosErrores.numeroTarjeta = 'Tarjeta debe tener 16 dígitos';
+    if (form.numeroTarjeta.replace(/\s/g, '').length < 16) {
+      nuevosErrores.numeroTarjeta = 'Tarjeta debe tener 16 dígitos';
+    }
     if (!form.expiracion.includes('/')) nuevosErrores.expiracion = 'Formato MM/AA inválido';
     if (form.cvv.length < 3) nuevosErrores.cvv = 'CVV inválido';
 
@@ -38,40 +43,32 @@ export default function Checkout({ onCompraFinalizada }) {
       return;
     }
 
-    // Simular resultado de pago (80% éxito, 20% rechazo)
-    const exito = Math.random() > 0.2;
-    const numOrden = `#2026${Math.floor(Math.random() * 9000 + 1000)}`;
+    setErrores({});
+    setErrorServidor(null);
+    setEnviando(true);
 
-    if (exito) {
-      const nuevaOrden = {
-        id: numOrden,
-        fecha: new Date().toLocaleDateString('es-CL'),
-        cliente: `${form.nombre} ${form.apellido}`.trim(),
-        correo: form.correo,
-        direccion: `${form.calle}, ${form.comuna}`.trim(),
-        total: total,
-        estado: 'Aprobado',
-        productos: carrito.map(item => ({
-          id: item.id,
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio: item.precio,
-          subtotal: item.precio * item.cantidad
+    try {
+      const creada = await ordenesService.crear({
+        cliente: `${form.nombre.trim()} ${form.apellido.trim()}`,
+        correo: form.correo.trim(),
+        direccion: `${form.calle.trim()}, ${form.comuna}`,
+        items: carrito.map((item) => ({
+          productoId: item.id,
+          cantidad: item.cantidad
         }))
-      };
-
-      try {
-        const ordenesPrevias = JSON.parse(localStorage.getItem('gamehub_ordenes')) || [];
-        const ordenesActualizadas = [nuevaOrden, ...ordenesPrevias];
-        localStorage.setItem('gamehub_ordenes', JSON.stringify(ordenesActualizadas));
-      } catch (error) {
-        console.error("Error al guardar la orden en localStorage:", error);
-      }
+      });
 
       vaciarCarrito();
-      onCompraFinalizada({ estado: 'exito', orden: numOrden, datos: form, total });
-    } else {
-      onCompraFinalizada({ estado: 'error', orden: numOrden, datos: form, total });
+      onCompraFinalizada({
+        estado: 'exito',
+        orden: creada?.id ? `#${creada.id}` : '#20260001',
+        datos: form,
+        total: creada?.total ?? total
+      });
+    } catch (err) {
+      setErrorServidor(err.message);
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -81,11 +78,16 @@ export default function Checkout({ onCompraFinalizada }) {
         Checkout / Datos de Despacho y Pago
       </h2>
 
+      {errorServidor && (
+        <div className="alert alert-danger" role="alert">
+          {errorServidor}
+        </div>
+      )}
+
       <div className="row g-4">
-        {/* Formulario de Pago y Despacho */}
         <div className="col-md-7">
-          <form 
-            className="card p-4 shadow-sm" 
+          <form
+            className="card p-4 shadow-sm"
             onSubmit={handleSubmit}
             style={{ backgroundColor: 'var(--color-superficie)', border: '1px solid var(--color-borde)' }}
           >
@@ -94,7 +96,9 @@ export default function Checkout({ onCompraFinalizada }) {
             </h5>
             <div className="row g-3 mb-3">
               <div className="col-md-6">
-                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Nombre</label>
+                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                  Nombre
+                </label>
                 <input
                   type="text"
                   name="nombre"
@@ -107,7 +111,9 @@ export default function Checkout({ onCompraFinalizada }) {
                 {errores.nombre && <div className="invalid-feedback">{errores.nombre}</div>}
               </div>
               <div className="col-md-6">
-                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Apellido</label>
+                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                  Apellido
+                </label>
                 <input
                   type="text"
                   name="apellido"
@@ -122,7 +128,9 @@ export default function Checkout({ onCompraFinalizada }) {
             </div>
 
             <div className="mb-3">
-              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Correo Electrónico</label>
+              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                Correo Electrónico
+              </label>
               <input
                 type="email"
                 name="correo"
@@ -139,7 +147,9 @@ export default function Checkout({ onCompraFinalizada }) {
               2. Dirección de Entrega
             </h5>
             <div className="mb-3">
-              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Calle y Número</label>
+              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                Calle y Número
+              </label>
               <input
                 type="text"
                 name="calle"
@@ -153,12 +163,14 @@ export default function Checkout({ onCompraFinalizada }) {
             </div>
 
             <div className="mb-3">
-              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Comuna</label>
-              <select 
-                name="comuna" 
-                className="form-select" 
+              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                Comuna
+              </label>
+              <select
+                name="comuna"
+                className="form-select"
                 style={{ backgroundColor: 'var(--color-fondo)', color: '#FFFFFF', borderColor: 'var(--color-borde)' }}
-                value={form.comuna} 
+                value={form.comuna}
                 onChange={handleChange}
               >
                 <option value="Valparaíso">Valparaíso</option>
@@ -173,7 +185,9 @@ export default function Checkout({ onCompraFinalizada }) {
               3. Medio de Pago (Simulación de Tarjeta)
             </h5>
             <div className="mb-3">
-              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Número de Tarjeta</label>
+              <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                Número de Tarjeta
+              </label>
               <input
                 type="text"
                 name="numeroTarjeta"
@@ -189,7 +203,9 @@ export default function Checkout({ onCompraFinalizada }) {
 
             <div className="row g-3 mb-4">
               <div className="col-md-6">
-                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>Expiración (MM/AA)</label>
+                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                  Expiración (MM/AA)
+                </label>
                 <input
                   type="text"
                   name="expiracion"
@@ -203,7 +219,9 @@ export default function Checkout({ onCompraFinalizada }) {
                 {errores.expiracion && <div className="invalid-feedback">{errores.expiracion}</div>}
               </div>
               <div className="col-md-6">
-                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>CVV</label>
+                <label className="form-label small" style={{ color: 'var(--color-texto-secundario)' }}>
+                  CVV
+                </label>
                 <input
                   type="password"
                   name="cvv"
@@ -218,24 +236,27 @@ export default function Checkout({ onCompraFinalizada }) {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-banner btn-lg fw-bold w-100 border-0">
-              Pagar Ahora ${total.toLocaleString('es-CL')}
+            <button
+              type="submit"
+              className="btn btn-banner btn-lg fw-bold w-100 border-0"
+              disabled={enviando || carrito.length === 0}
+            >
+              {enviando ? 'Enviando orden...' : `Pagar Ahora $${total.toLocaleString('es-CL')}`}
             </button>
           </form>
         </div>
 
-        {/* Resumen de la Compra */}
         <div className="col-md-5">
-          <div 
-            className="card p-3 shadow-sm" 
+          <div
+            className="card p-3 shadow-sm"
             style={{ backgroundColor: 'var(--color-superficie)', border: '1px solid var(--color-borde)' }}
           >
             <h5 className="fw-bold mb-3" style={{ color: '#FFFFFF' }}>Resumen de la Compra</h5>
-            
+
             <ul className="list-group mb-3 rounded" style={{ border: '1px solid var(--color-borde)' }}>
               {carrito.map(item => (
-                <li 
-                  key={item.id} 
+                <li
+                  key={item.id}
                   className="list-group-item d-flex justify-content-between align-items-center"
                   style={{ backgroundColor: 'var(--color-fondo)', color: 'var(--color-texto)', borderColor: 'var(--color-borde)' }}
                 >
@@ -243,13 +264,15 @@ export default function Checkout({ onCompraFinalizada }) {
                     <div className="fw-bold" style={{ color: '#FFFFFF' }}>{item.nombre}</div>
                     <small style={{ color: 'var(--color-texto-secundario)' }}>Cantidad: {item.cantidad}</small>
                   </div>
-                  <span style={{ color: 'var(--color-primario)' }}>${(item.precio * item.cantidad).toLocaleString('es-CL')}</span>
+                  <span style={{ color: 'var(--color-primario)' }}>
+                    ${(item.precio * item.cantidad).toLocaleString('es-CL')}
+                  </span>
                 </li>
               ))}
             </ul>
 
-            <div 
-              className="d-flex justify-content-between fs-5 fw-bold p-3 rounded" 
+            <div
+              className="d-flex justify-content-between fs-5 fw-bold p-3 rounded"
               style={{ backgroundColor: 'var(--color-fondo)', border: '1px solid var(--color-borde)', color: '#FFFFFF' }}
             >
               <span>Total a pagar:</span>

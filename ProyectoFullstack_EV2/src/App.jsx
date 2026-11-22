@@ -7,6 +7,7 @@ import Carrito from './pages/Carrito';
 import Checkout from './pages/Checkout';
 import ResultadoPago from './pages/ResultadoPago';
 import Ordenes from './pages/Ordenes';
+import Admin from './pages/Admin';
 import { CarritoProvider } from './context/CarritoContext';
 
 function ContenidoApp() {
@@ -52,6 +53,8 @@ function ContenidoApp() {
         )}
 
         {vistaActual === 'ordenes' && <Ordenes />}
+
+        {vistaActual === 'admin' && <Admin />}
       </main>
 
       <footer>

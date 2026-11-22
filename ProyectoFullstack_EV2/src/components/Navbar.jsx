@@ -42,6 +42,15 @@ export default function Navbar({ vistaActual, setVistaActual }) {
           </li>
           <li>
             <a
+              href="#admin"
+              className={vistaActual === 'admin' ? 'activo' : ''}
+              onClick={(e) => { e.preventDefault(); setVistaActual('admin'); }}
+            >
+              ADMIN
+            </a>
+          </li>
+          <li>
+            <a
               href="#carrito"
               className={vistaActual === 'carrito' ? 'activo' : ''}
               onClick={(e) => { e.preventDefault(); setVistaActual('carrito'); }}
