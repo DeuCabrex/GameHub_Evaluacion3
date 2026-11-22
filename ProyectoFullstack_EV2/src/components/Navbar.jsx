@@ -1,7 +1,6 @@
 import { useContext } from 'react';
 import { CarritoContext } from '../context/CarritoContext';
 import { useAuth } from '../context/AuthContext';
-import logoImg from '../assets/gamehub.png';
 
 export default function Navbar({ vistaActual, setVistaActual }) {
   const { carrito } = useContext(CarritoContext);
