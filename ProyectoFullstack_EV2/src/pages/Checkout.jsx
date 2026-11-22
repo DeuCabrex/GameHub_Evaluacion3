@@ -1,13 +1,18 @@
 import { useState, useContext } from 'react';
 import { CarritoContext } from '../context/CarritoContext';
+import { useAuth } from '../context/AuthContext';
+import { leerSesion } from '../services/sesion';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
 
 export default function Checkout({ onCompraFinalizada }) {
   const { carrito, total, vaciarCarrito } = useContext(CarritoContext);
+  const { token, usuario } = useAuth();
 
   const [form, setForm] = useState({
-    nombre: '',
+    nombre: usuario?.nombre || '',
     apellido: '',
-    correo: '',
+    correo: usuario?.email || '',
     calle: '',
     comuna: 'Santiago',
     numeroTarjeta: '',
@@ -16,13 +21,16 @@ export default function Checkout({ onCompraFinalizada }) {
   });
 
   const [errores, setErrores] = useState({});
+  const [procesando, setProcesando] = useState(false);
+  const [errorServidor, setErrorServidor] = useState(null);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrorServidor(null);
     const nuevosErrores = {};
 
     if (!form.nombre.trim()) nuevosErrores.nombre = 'El nombre es obligatorio';
@@ -38,40 +46,45 @@ export default function Checkout({ onCompraFinalizada }) {
       return;
     }
 
-    // Simular resultado de pago (80% éxito, 20% rechazo)
-    const exito = Math.random() > 0.2;
-    const numOrden = `#2026${Math.floor(Math.random() * 9000 + 1000)}`;
+    const jwt = token || leerSesion()?.token;
+    if (!jwt) {
+      setErrorServidor('Debes iniciar sesión antes de finalizar tu compra.');
+      return;
+    }
 
-    if (exito) {
-      const nuevaOrden = {
-        id: numOrden,
-        fecha: new Date().toLocaleDateString('es-CL'),
-        cliente: `${form.nombre} ${form.apellido}`.trim(),
-        correo: form.correo,
-        direccion: `${form.calle}, ${form.comuna}`.trim(),
-        total: total,
-        estado: 'Aprobado',
-        productos: carrito.map(item => ({
-          id: item.id,
-          nombre: item.nombre,
-          cantidad: item.cantidad,
-          precio: item.precio,
-          subtotal: item.precio * item.cantidad
+    setProcesando(true);
+
+    try {
+      const payload = {
+        items: carrito.map((item) => ({
+          productoId: item.id,
+          cantidad: item.cantidad
         }))
       };
 
-      try {
-        const ordenesPrevias = JSON.parse(localStorage.getItem('gamehub_ordenes')) || [];
-        const ordenesActualizadas = [nuevaOrden, ...ordenesPrevias];
-        localStorage.setItem('gamehub_ordenes', JSON.stringify(ordenesActualizadas));
-      } catch (error) {
-        console.error("Error al guardar la orden en localStorage:", error);
+      const res = await fetch(`${API_URL}/ordenes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${jwt}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        throw new Error(data.mensaje || data.error || 'No se pudo procesar la orden en el servidor');
       }
 
+      const numOrden = `#${data.id}`;
       vaciarCarrito();
-      onCompraFinalizada({ estado: 'exito', orden: numOrden, datos: form, total });
-    } else {
-      onCompraFinalizada({ estado: 'error', orden: numOrden, datos: form, total });
+      onCompraFinalizada({ estado: 'exito', orden: numOrden, datos: form, total: data.total || total });
+    } catch (err) {
+      console.error('Error al crear orden:', err);
+      setErrorServidor(err.message);
+    } finally {
+      setProcesando(false);
     }
   };
 
@@ -81,8 +94,13 @@ export default function Checkout({ onCompraFinalizada }) {
         Checkout / Datos de Despacho y Pago
       </h2>
 
+      {errorServidor && (
+        <div className="alert alert-danger mb-4" role="alert">
+          {errorServidor}
+        </div>
+      )}
+
       <div className="row g-4">
-        {/* Formulario de Pago y Despacho */}
         <div className="col-md-7">
           <form 
             className="card p-4 shadow-sm" 
@@ -218,13 +236,16 @@ export default function Checkout({ onCompraFinalizada }) {
               </div>
             </div>
 
-            <button type="submit" className="btn btn-banner btn-lg fw-bold w-100 border-0">
-              Pagar Ahora ${total.toLocaleString('es-CL')}
+            <button
+              type="submit"
+              className="btn btn-banner btn-lg fw-bold w-100 border-0"
+              disabled={procesando || carrito.length === 0}
+            >
+              {procesando ? 'Procesando Pago...' : `Pagar Ahora $${total.toLocaleString('es-CL')}`}
             </button>
           </form>
         </div>
 
-        {/* Resumen de la Compra */}
         <div className="col-md-5">
           <div 
             className="card p-3 shadow-sm" 

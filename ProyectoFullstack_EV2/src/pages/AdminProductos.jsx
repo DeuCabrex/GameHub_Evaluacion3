@@ -6,10 +6,10 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
 
 const FORM_INICIAL = {
   nombre: '',
-  descripcion: '',
+  categoria: '',
+  marca: '',
   precio: '',
   stock: '',
-  categoria: '',
   imagen: ''
 };
 
@@ -64,9 +64,12 @@ export default function AdminProductos() {
     const precioLimpio = Number(String(formulario.precio).replace(/\./g, ''));
 
     const payload = {
-      ...formulario,
+      nombre: formulario.nombre.trim(),
+      categoria: formulario.categoria.trim(),
+      marca: formulario.marca.trim(),
       precio: precioLimpio,
-      stock: Number(formulario.stock)
+      stock: Number(formulario.stock),
+      imagen: formulario.imagen.trim()
     };
 
     const url = editandoId
@@ -86,12 +89,12 @@ export default function AdminProductos() {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.mensaje || 'Error al guardar el producto');
+        throw new Error(err.mensaje || err.error || `Error ${res.status} al guardar el producto`);
       }
 
       setMensaje({
         tipo: 'success',
-        texto: editandoId ? 'Producto actualizado correctamente.' : 'Producto creado con éxito.'
+        texto: editandoId ? 'Producto actualizado correctamente.' : 'Producto creado con éxito en Supabase.'
       });
       setFormulario(FORM_INICIAL);
       setEditandoId(null);
@@ -107,10 +110,10 @@ export default function AdminProductos() {
     setEditandoId(prod.id);
     setFormulario({
       nombre: prod.nombre || '',
-      descripcion: prod.descripcion || '',
+      categoria: prod.categoria || '',
+      marca: prod.marca || '',
       precio: prod.precio ?? '',
       stock: prod.stock ?? '',
-      categoria: prod.categoria || '',
       imagen: prod.imagen || ''
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -150,30 +153,43 @@ export default function AdminProductos() {
         </div>
       )}
 
-      {/* Formulario Crear / Editar */}
       <div className="card p-4 mb-5">
         <h4 className="mb-3">{editandoId ? 'Editar Producto' : 'Nuevo Producto'}</h4>
         <form onSubmit={handleSubmit} className="row g-3">
-          <div className="col-md-6">
+          <div className="col-md-4">
             <label className="form-label">Nombre</label>
             <input
               type="text"
               name="nombre"
               className="form-control"
+              placeholder="Ej: Ryzen 9 9950X"
               value={formulario.nombre}
               onChange={handleChange}
               required
             />
           </div>
-          <div className="col-md-3">
+          <div className="col-md-4">
             <label className="form-label">Categoría</label>
             <input
               type="text"
               name="categoria"
               className="form-control"
-              placeholder="Ej: Consolas, Laptops"
+              placeholder="Ej: Procesador, Consolas"
               value={formulario.categoria}
               onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="col-md-4">
+            <label className="form-label">Marca</label>
+            <input
+              type="text"
+              name="marca"
+              className="form-control"
+              placeholder="Ej: AMD, Sony, Asus"
+              value={formulario.marca}
+              onChange={handleChange}
+              required
             />
           </div>
           <div className="col-md-3">
@@ -201,7 +217,7 @@ export default function AdminProductos() {
               required
             />
           </div>
-          <div className="col-md-9">
+          <div className="col-md-6">
             <label className="form-label">URL de Imagen</label>
             <input
               type="text"
@@ -209,16 +225,6 @@ export default function AdminProductos() {
               className="form-control"
               placeholder="https://..."
               value={formulario.imagen}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="col-12">
-            <label className="form-label">Descripción</label>
-            <textarea
-              name="descripcion"
-              className="form-control"
-              rows="2"
-              value={formulario.descripcion}
               onChange={handleChange}
             />
           </div>
@@ -242,7 +248,6 @@ export default function AdminProductos() {
         </form>
       </div>
 
-      {/* Tabla de Productos */}
       <div className="table-responsive p-3">
         <h4 className="mb-3">Catálogo Actual ({productos.length})</h4>
         <table className="table align-middle">
@@ -250,6 +255,7 @@ export default function AdminProductos() {
             <tr>
               <th>ID</th>
               <th>Nombre</th>
+              <th>Marca</th>
               <th>Categoría</th>
               <th>Precio</th>
               <th>Stock</th>
@@ -261,6 +267,7 @@ export default function AdminProductos() {
               <tr key={prod.id}>
                 <td>{prod.id}</td>
                 <td>{prod.nombre}</td>
+                <td>{prod.marca || '-'}</td>
                 <td>{prod.categoria || '-'}</td>
                 <td>${Number(prod.precio).toLocaleString('es-CL')}</td>
                 <td>{prod.stock}</td>
@@ -282,7 +289,7 @@ export default function AdminProductos() {
             ))}
             {productos.length === 0 && (
               <tr>
-                <td colSpan="6" className="text-center py-4">
+                <td colSpan="7" className="text-center py-4">
                   No hay productos registrados todavía.
                 </td>
               </tr>

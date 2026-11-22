@@ -11,7 +11,6 @@ import Registro from './pages/Registro';
 import Ordenes from './pages/Ordenes';
 import AdminProductos from './pages/AdminProductos';
 import RutaProtegida from './auth/RutaProtegida';
-import Ordenes from './pages/Ordenes';
 import { CarritoProvider } from './context/CarritoContext';
 import { AuthProvider } from './context/AuthContext';
 
@@ -35,7 +34,7 @@ function ContenidoApp() {
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100">
+    <div className="d-flex flex-column min-vh-100"> 
       <Navbar vistaActual={vistaActual} setVistaActual={setVistaActual} />
 
       <main className="flex-grow-1">
@@ -108,8 +107,6 @@ function ContenidoApp() {
             <AdminProductos />
           </RutaProtegida>
         )}
-
-        {vistaActual === 'ordenes' && <Ordenes />}
       </main>
 
       <footer>
