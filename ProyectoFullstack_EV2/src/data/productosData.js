@@ -43,3 +43,19 @@ export async function eliminarProducto(id) {
   });
   return manejarRespuesta(res);
 }
+
+export function calcularSubtotal(items = []) {
+  return items.reduce((acc, item) => acc + Number(item.precio || 0) * Number(item.cantidad || 1), 0);
+}
+
+export function aplicarCupon(subtotal, cupon) {
+  if (!cupon) return 0;
+  const codigo = String(cupon).trim().toUpperCase();
+  if (codigo === "GAMEHUB10") return Math.round(subtotal * 0.1);
+  return 0;
+}
+
+export function calcularTotal(subtotal, descuento = 0) {
+  const total = Number(subtotal || 0) - Number(descuento || 0);
+  return total > 0 ? total : 0;
+}
