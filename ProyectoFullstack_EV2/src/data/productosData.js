@@ -1,8 +1,8 @@
-import amd5600gImg from '../assets/amd5600g.png';
-import asusLaptopImg from '../assets/Asus_Laptop.png';
-import graficaMikuImg from '../assets/grafica_miku.png';
-import ryzen7Img from '../assets/Ryzen7.jpg';
-import ryzen9Img from '../assets/Ryzen9.jpg';
+import amd5600gImg from '../public/amd5600g.png';
+import asusLaptopImg from '../public/Asus_Laptop.png';
+import graficaMikuImg from '../public/grafica_miku.png';
+import ryzen7Img from '../public/Ryzen7.jpg';
+import ryzen9Img from '../public/Ryzen9.jpg';
 
 export const PRODUCTOS_INICIALES = [
   {
