@@ -11,6 +11,7 @@ import Registro from './pages/Registro';
 import Ordenes from './pages/Ordenes';
 import AdminProductos from './pages/AdminProductos';
 import RutaProtegida from './auth/RutaProtegida';
+import Ordenes from './pages/Ordenes';
 import { CarritoProvider } from './context/CarritoContext';
 import { AuthProvider } from './context/AuthContext';
 
@@ -45,7 +46,9 @@ function ContenidoApp() {
             onIrACarrito={() => setVistaActual('carrito')}
           />
         )}
+
         {vistaActual === 'catalogo' && <Catalogo />}
+
         {vistaActual === 'carrito' && (
           <Carrito 
             onIrACheckout={() => setVistaActual('checkout')} 
@@ -84,6 +87,7 @@ function ContenidoApp() {
             <Checkout onCompraFinalizada={handleFinalizarCompra} />
           </RutaProtegida>
         )}
+
         {vistaActual === 'resultado' && (
           <RutaProtegida setVistaActual={setVistaActual}>
             <ResultadoPago
@@ -104,6 +108,8 @@ function ContenidoApp() {
             <AdminProductos />
           </RutaProtegida>
         )}
+
+        {vistaActual === 'ordenes' && <Ordenes />}
       </main>
 
       <footer>
