@@ -11,7 +11,6 @@ import Registro from './pages/Registro';
 import Ordenes from './pages/Ordenes';
 import AdminProductos from './pages/AdminProductos';
 import RutaProtegida from './auth/RutaProtegida';
-import Ordenes from './pages/Ordenes';
 import Admin from './pages/Admin';
 import { CarritoProvider } from './context/CarritoContext';
 import { AuthProvider } from './context/AuthContext';
