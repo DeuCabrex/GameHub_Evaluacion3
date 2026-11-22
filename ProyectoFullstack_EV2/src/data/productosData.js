@@ -1,3 +1,9 @@
+import amd5600gImg from '../assets/amd5600g.png';
+import asusLaptopImg from '../assets/Asus_Laptop.png';
+import graficaMikuImg from '../assets/grafica_miku.png';
+import ryzen7Img from '../assets/Ryzen7.jpg';
+import ryzen9Img from '../assets/Ryzen9.jpg';
+
 export const PRODUCTOS_INICIALES = [
   {
     id: 1,
@@ -6,7 +12,7 @@ export const PRODUCTOS_INICIALES = [
     stock: 8,
     categoria: "Procesadores",
     marca: "AMD",
-    imagen: '/amd5600g.png'
+    imagen: amd5600gImg
   },
   {
     id: 2,
@@ -15,7 +21,7 @@ export const PRODUCTOS_INICIALES = [
     stock: 3,
     categoria: "Notebooks",
     marca: "ASUS",
-    imagen: '/Asus_Laptop.png'
+    imagen: asusLaptopImg
   },
   {
     id: 3,
@@ -24,7 +30,7 @@ export const PRODUCTOS_INICIALES = [
     stock: 4,
     categoria: "Tarjetas Gráficas",
     marca: "NVIDIA",
-    imagen: '/grafica_miku.png'
+    imagen: graficaMikuImg
   },
   {
     id: 4,
@@ -33,7 +39,7 @@ export const PRODUCTOS_INICIALES = [
     stock: 6,
     categoria: "Procesadores",
     marca: "AMD",
-    imagen: '/Ryzen7.jpg'
+    imagen: ryzen7Img
   },
   {
     id: 5,
@@ -42,7 +48,7 @@ export const PRODUCTOS_INICIALES = [
     stock: 0,
     categoria: "Procesadores",
     marca: "AMD",
-    imagen: '/Ryzen9.jpg'
+    imagen: ryzen9Img
   }
 ];
 

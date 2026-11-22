@@ -1,11 +1,13 @@
-import { solicitar } from './api';
+import { solicitar } from "./api";
 
 export const ordenesService = {
-  crear: (payload) =>
-    solicitar('/ordenes', {
-      method: 'POST',
+  crear(payload) {
+    return solicitar("/api/ordenes", {
+      method: "POST",
       body: JSON.stringify(payload),
-    }),
-  listar: () => solicitar('/ordenes'),
-  obtener: (id) => solicitar(`/ordenes/${id}`),
+    });
+  },
+  listarMias() {
+    return solicitar("/api/ordenes");
+  },
 };

@@ -78,6 +78,7 @@ export default function Checkout({ onCompraFinalizada }) {
       }
 
       const numOrden = `#${data.id}`;
+    if (exito) {
       vaciarCarrito();
       onCompraFinalizada({ estado: 'exito', orden: numOrden, datos: form, total: data.total || total });
     } catch (err) {
@@ -187,6 +188,7 @@ export default function Checkout({ onCompraFinalizada }) {
               </select>
             </div>
 
+            {/* Simulación de Tarjeta de Crédito / Débito */}
             <h5 className="fw-bold mb-3 mt-3" style={{ color: 'var(--color-primario)' }}>
               3. Medio de Pago (Simulación de Tarjeta)
             </h5>

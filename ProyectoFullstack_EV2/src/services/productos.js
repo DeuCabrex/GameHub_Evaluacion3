@@ -1,20 +1,25 @@
-import { solicitar } from './api';
+import { solicitar } from "./api";
 
-export const productosService = {
-  listar: () => solicitar('/productos'),
-  obtener: (id) => solicitar(`/productos/${id}`),
-  crear: (payload) =>
-    solicitar('/productos', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    }),
-  actualizar: (id, payload) =>
-    solicitar(`/productos/${id}`, {
-      method: 'PUT',
-      body: JSON.stringify(payload),
-    }),
-  eliminar: (id) =>
-    solicitar(`/productos/${id}`, {
-      method: 'DELETE',
-    }),
-};
+export function obtenerProductos() {
+  return solicitar("/api/productos");
+}
+
+export function crearProducto(payload) {
+  return solicitar("/api/productos", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function actualizarProducto(id, payload) {
+  return solicitar(`/api/productos/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function eliminarProducto(id) {
+  return solicitar(`/api/productos/${id}`, {
+    method: "DELETE",
+  });
+}

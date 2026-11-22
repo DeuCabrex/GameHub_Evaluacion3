@@ -45,9 +45,7 @@ function ContenidoApp() {
             onIrACarrito={() => setVistaActual('carrito')}
           />
         )}
-
         {vistaActual === 'catalogo' && <Catalogo />}
-
         {vistaActual === 'carrito' && (
           <Carrito 
             onIrACheckout={() => setVistaActual('checkout')} 
@@ -86,7 +84,6 @@ function ContenidoApp() {
             <Checkout onCompraFinalizada={handleFinalizarCompra} />
           </RutaProtegida>
         )}
-
         {vistaActual === 'resultado' && (
           <RutaProtegida setVistaActual={setVistaActual}>
             <ResultadoPago
