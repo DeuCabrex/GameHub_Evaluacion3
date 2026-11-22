@@ -1,6 +1,6 @@
 import { leerSesion, borrarSesion } from './sesion'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 
 export async function solicitar(ruta, opciones = {}) {
   const token = leerSesion()?.token

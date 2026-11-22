@@ -43,6 +43,7 @@ export function AuthProvider({ children }) {
     registro,
     logout,
     usuario: sesion?.usuario ?? null,
+    token: sesion?.token ?? null,
     autenticado: sesion !== null,
   }
 

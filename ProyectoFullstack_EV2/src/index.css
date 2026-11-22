@@ -33,50 +33,68 @@ main {
   flex: 1; 
 }
 
-/* Header principal */
+/* Header principal responsivo */
 header {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 3rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 2rem;
   background-color: var(--color-superficie);
   border-bottom: 1px solid var(--color-borde);
-  min-height: 100px;
+  min-height: 90px;
+}
+
+.logo-titulo {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  cursor: pointer;
 }
 
 .logo img {
-  width: 80px;
-  height: 80px;
+  width: 65px;
+  height: 65px;
   object-fit: contain;
 }
 
 header h1 {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
   color: #FFFFFF;
-  font-size: 1.8rem;
+  font-size: clamp(1.15rem, 2.2vw, 1.75rem);
+  margin: 0;
+  white-space: nowrap;
 }
 
 .nav ul {
   display: flex;
   list-style: none;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1.25rem;
   align-items: center;
+  margin: 0;
+  padding: 0;
 }
 
 .nav a {
   color: var(--color-texto);
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 1rem;
   transition: color 0.2s ease;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .nav a:hover, .nav a.activo {
   color: var(--color-acento);
   font-weight: 600;
+}
+
+.usuario-saludo {
+  color: var(--color-primario);
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
 }
 
 /* Carrusel y Banner */
@@ -294,15 +312,17 @@ footer {
   color: var(--color-texto-secundario);
 }
 
+@media (max-width: 1100px) {
+  header {
+    justify-content: center;
+    padding: 1rem;
+  }
+  .nav ul {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 768px) {
-  header { 
-    flex-direction: column; 
-    gap: 1rem; 
-  }
-  header h1 { 
-    position: static; 
-    transform: none; 
-  }
   .slide-banner { 
     flex-direction: column; 
     text-align: center; 

@@ -16,10 +16,13 @@ export default function Navbar({ vistaActual, setVistaActual }) {
 
   return (
     <header className="header">
-      <div className="logo cursor-pointer" onClick={() => setVistaActual('home')}>
-        <img src={logoImg} alt="Logo GameHub Store" />
+      <div className="logo-titulo" onClick={() => setVistaActual('home')}>
+        <div className="logo">
+          <img src={logoImg} alt="Logo GameHub Store" />
+        </div>
+        <h1>GameHub Store</h1>
       </div>
-      <h1>GameHub Store</h1>
+
       <nav className="nav">
         <ul>
           <li>
@@ -41,7 +44,6 @@ export default function Navbar({ vistaActual, setVistaActual }) {
             </a>
           </li>
 
-          {/* Solo visible si está autenticado */}
           {autenticado && (
             <li>
               <a
@@ -54,7 +56,6 @@ export default function Navbar({ vistaActual, setVistaActual }) {
             </li>
           )}
 
-          {/* Solo visible para ADMIN */}
           {usuario?.rol === 'ADMIN' && (
             <li>
               <a
@@ -77,7 +78,6 @@ export default function Navbar({ vistaActual, setVistaActual }) {
             </a>
           </li>
 
-          {/* Control de sesión: Invitado vs Usuario autenticado */}
           {!autenticado ? (
             <>
               <li>
@@ -102,7 +102,7 @@ export default function Navbar({ vistaActual, setVistaActual }) {
           ) : (
             <>
               <li>
-                <span style={{ fontWeight: 'bold', padding: '0 8px' }}>
+                <span className="usuario-saludo">
                   Hola, {usuario.nombre} ({usuario.rol})
                 </span>
               </li>

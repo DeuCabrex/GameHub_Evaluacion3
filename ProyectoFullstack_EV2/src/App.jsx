@@ -8,6 +8,8 @@ import Checkout from './pages/Checkout';
 import ResultadoPago from './pages/ResultadoPago';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
+import Ordenes from './pages/Ordenes';
+import AdminProductos from './pages/AdminProductos';
 import RutaProtegida from './auth/RutaProtegida';
 import { CarritoProvider } from './context/CarritoContext';
 import { AuthProvider } from './context/AuthContext';
@@ -64,6 +66,15 @@ function ContenidoApp() {
         )}
 
         {/* Vistas protegidas (USER y ADMIN) */}
+        {vistaActual === 'ordenes' && (
+          <RutaProtegida
+            setVistaActual={setVistaActual}
+            vistaDestino="ordenes"
+            setVistaPendiente={setVistaPendiente}
+          >
+            <Ordenes />
+          </RutaProtegida>
+        )}
         {vistaActual === 'checkout' && (
           <RutaProtegida
             setVistaActual={setVistaActual}
@@ -90,10 +101,7 @@ function ContenidoApp() {
             vistaDestino="admin"
             setVistaPendiente={setVistaPendiente}
           >
-            <div className="container my-5">
-              <h2>Panel de Administración</h2>
-              <p>Aquí va la gestión de productos/órdenes de tus compañeros.</p>
-            </div>
+            <AdminProductos />
           </RutaProtegida>
         )}
       </main>
