@@ -1,31 +1,30 @@
-const CLAVE_SESION = 'sesion';
+const CLAVE = 'sesion'
 
-export function leerSesion() {
+function vencida(sesion) {
   try {
-    const raw = localStorage.getItem(CLAVE_SESION);
-    if (!raw) return null;
-    const sesion = JSON.parse(raw);
-    if (!sesion?.token) return null;
-
-    // Verificar expiración si el payload JWT trae `exp`
-    const partes = sesion.token.split('.');
-    if (partes.length === 3) {
-      const payload = JSON.parse(atob(partes[1].replace(/-/g, '+').replace(/_/g, '/')));
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        localStorage.removeItem(CLAVE_SESION);
-        return null;
-      }
-    }
-    return sesion;
+    const parte = sesion.token.split('.')[1]
+    const base64 = parte.replace(/-/g, '+').replace(/_/g, '/')
+    const { exp } = JSON.parse(atob(base64))
+    return exp * 1000 < Date.now()
   } catch {
-    return null;
+    return true
   }
 }
 
+export function leerSesion() {
+  const texto = localStorage.getItem(CLAVE)
+  const sesion = texto ? JSON.parse(texto) : null
+  if (sesion && vencida(sesion)) {
+    borrarSesion()
+    return null
+  }
+  return sesion
+}
+
 export function guardarSesion(sesion) {
-  localStorage.setItem(CLAVE_SESION, JSON.stringify(sesion));
+  localStorage.setItem(CLAVE, JSON.stringify(sesion))
 }
 
 export function borrarSesion() {
-  localStorage.removeItem(CLAVE_SESION);
+  localStorage.removeItem(CLAVE)
 }

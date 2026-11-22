@@ -1,31 +1,28 @@
-import { leerSesion, borrarSesion } from './sesion';
+import { leerSesion, borrarSesion } from './sesion'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api'
 
 export async function solicitar(ruta, opciones = {}) {
-  const sesion = leerSesion();
-  const token = sesion?.token;
-
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(opciones.headers || {}),
-  };
+  const token = leerSesion()?.token
+  const headers = { 'Content-Type': 'application/json' }
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
 
   const res = await fetch(`${API_URL}${ruta}`, {
     ...opciones,
-    headers,
-  });
+    headers: { ...headers, ...opciones.headers },
+  })
 
   if (res.status === 401 && token) {
-    borrarSesion();
-    window.dispatchEvent(new Event('sesion-expirada'));
+    borrarSesion()
+    window.dispatchEvent(new Event('sesion-expirada'))
   }
 
   if (!res.ok) {
-    const cuerpo = await res.json().catch(() => ({}));
-    throw new Error(cuerpo.mensaje || `Error HTTP ${res.status}`);
+    const cuerpo = await res.json().catch(() => ({}))
+    throw new Error(cuerpo.mensaje || `Error ${res.status}`)
   }
 
-  return res.status === 204 ? null : res.json();
+  return res.status === 204 ? null : res.json()
 }
