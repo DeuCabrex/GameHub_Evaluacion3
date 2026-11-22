@@ -18,7 +18,7 @@ export default function Navbar({ vistaActual, setVistaActual }) {
     <header className="header">
       <div className="logo-titulo" onClick={() => setVistaActual('home')}>
         <div className="logo">
-          <img src={logoImg} alt="Logo GameHub Store" />
+          <img src="/gamehub.png" alt="Logo GameHub Store" />
         </div>
         <h1>GameHub Store</h1>
       </div>
