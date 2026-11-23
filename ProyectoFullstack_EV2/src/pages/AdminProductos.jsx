@@ -4,6 +4,17 @@ import { leerSesion } from '../services/sesion';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8081/api';
 
+const CATEGORIAS_BASE = [
+  'Procesadores',
+  'Tarjetas Gráficas',
+  'Notebooks',
+  'Consolas',
+  'Periféricos',
+  'Monitores',
+  'Almacenamiento',
+  'Memorias RAM'
+];
+
 const FORM_INICIAL = {
   nombre: '',
   categoria: '',
@@ -40,6 +51,13 @@ export default function AdminProductos() {
   useEffect(() => {
     cargarProductos();
   }, []);
+
+  const categoriasDisponibles = Array.from(
+    new Set([
+      ...CATEGORIAS_BASE,
+      ...productos.map((p) => p.categoria).filter(Boolean)
+    ])
+  );
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -170,15 +188,20 @@ export default function AdminProductos() {
           </div>
           <div className="col-md-4">
             <label className="form-label">Categoría</label>
-            <input
-              type="text"
+            <select
               name="categoria"
-              className="form-control"
-              placeholder="Ej: Procesador, Consolas"
+              className="form-select"
               value={formulario.categoria}
               onChange={handleChange}
               required
-            />
+            >
+              <option value="">Selecciona una categoría...</option>
+              {categoriasDisponibles.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="col-md-4">
             <label className="form-label">Marca</label>

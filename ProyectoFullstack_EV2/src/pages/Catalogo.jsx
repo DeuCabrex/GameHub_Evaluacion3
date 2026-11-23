@@ -11,8 +11,7 @@ export default function Catalogo() {
   const [error, setError] = useState(null);
 
   const [categoriaSel, setCategoriaSel] = useState('Todas');
-  const [precioMin, setPrecioMin] = useState(0);
-  const [precioMax, setPrecioMax] = useState(1000000);
+  const [precioMax, setPrecioMax] = useState('');
   const [orden, setOrden] = useState('nombre');
 
   useEffect(() => {
@@ -40,7 +39,7 @@ export default function Catalogo() {
 
   const productosFiltrados = productos.filter(p => {
     const cumpleCat = categoriaSel === 'Todas' || p.categoria === categoriaSel;
-    const cumplePrecio = p.precio >= precioMin && p.precio <= precioMax;
+    const cumplePrecio = precioMax === '' || Number(p.precio) <= Number(precioMax);
     return cumpleCat && cumplePrecio;
   });
 
@@ -73,8 +72,10 @@ export default function Catalogo() {
               <input
                 type="number"
                 className="form-control"
+                placeholder="Sin límite"
+                min="0"
                 value={precioMax}
-                onChange={e => setPrecioMax(Number(e.target.value))}
+                onChange={e => setPrecioMax(e.target.value)}
               />
             </div>
 
